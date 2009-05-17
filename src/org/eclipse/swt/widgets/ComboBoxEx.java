@@ -50,7 +50,7 @@ public class ComboBoxEx extends Composite
     int scrollWidth;
     int visibleCount = 5;
 
-    int cbtHook;
+    int /*long*/ cbtHook;
 
     /**
      * the operating system limit for the number of characters that the text
@@ -67,9 +67,9 @@ public class ComboBoxEx extends Composite
         LIMIT = OS.IsWinNT ? 0x7FFFFFFF : 0x7FFF;
     }
 
-    static int EditProc, ListProc;
+    static /*final*/ int /*long*/ EditProc, ListProc;
 
-    static final int ComboBoxProc;
+    static final int /*long*/ ComboBoxProc;
     static final TCHAR ComboBoxExClass = new TCHAR(0, "COMBOBOXEX32", true);
 
     public static final int CBEM_SETIMAGELIST = 0x402;
@@ -280,7 +280,7 @@ public class ComboBoxEx extends Composite
      * @param wParam WPARAM
      * @param lParam LPARAM
      */
-    int callWindowProc(int hwnd, int msg, int wParam, int lParam)
+    int /*long*/ callWindowProc(int /*long*/ hwnd, int msg, int /*long*/ wParam, int /*long*/ lParam)
     {
         if (handle == 0)
         {
@@ -294,7 +294,7 @@ public class ComboBoxEx extends Composite
                 case OS.WM_SIZE:
                 {
                     ignoreResize = true;
-                    int result = OS.CallWindowProc(ComboBoxProc, hwnd, msg, wParam, lParam);
+                    int /*long*/ result = OS.CallWindowProc(ComboBoxProc, hwnd, msg, wParam, lParam);
                     ignoreResize = false;
 
                     return result;
@@ -304,13 +304,13 @@ public class ComboBoxEx extends Composite
             return OS.CallWindowProc(ComboBoxProc, hwnd, msg, wParam, lParam);
         }
 
-        int hwndText = getEditControl();
+        int /*long*/ hwndText = getEditControl();
         if (hwnd == hwndText)
         {
             return OS.CallWindowProc(EditProc, hwnd, msg, wParam, lParam);
         }
 
-        int hwndList = getComboControl();
+        int /*long*/ hwndList = getComboControl();
         if (hwnd == hwndList)
         {
             return OS.CallWindowProc(ListProc, hwnd, msg, wParam, lParam);
@@ -332,9 +332,9 @@ public class ComboBoxEx extends Composite
      * @param wParam WPARAM
      * @param lParam LPARAM
      */
-    int CBTProc(int nCode, int wParam, int lParam)
+    int /*long*/ CBTProc(int /*long*/ nCode, int /*long*/ wParam, int /*long*/ lParam)
     {
-        if (nCode == OS.HCBT_CREATEWND)
+        if ((int)/*64*/ nCode == OS.HCBT_CREATEWND)
         {
             TCHAR buffer = new TCHAR(0, 128);
             OS.GetClassName(wParam, buffer, buffer.length());
@@ -347,7 +347,7 @@ public class ComboBoxEx extends Composite
             }
         }
 
-        return OS.CallNextHookEx(cbtHook, nCode, wParam, lParam);
+        return OS.CallNextHookEx(cbtHook, (int)/*64*/ nCode, wParam, lParam);
     }
 
     /**
@@ -356,7 +356,7 @@ public class ComboBoxEx extends Composite
      * @param hwnd Handle
      * @return true if handle is from ComboBoxEx
      */
-    boolean checkHandle(int hwnd)
+    boolean checkHandle(int /*long*/ hwnd)
     {
         return hwnd == handle || hwnd == getEditControl() || hwnd == getComboControl();
     }
@@ -463,9 +463,9 @@ public class ComboBoxEx extends Composite
 
         if (wHint == SWT.DEFAULT)
         {
-            int newFont;
-            int oldFont = 0;
-            int hDC = OS.GetDC(handle);
+            int /*long*/ newFont;
+            int /*long*/ oldFont = 0;
+            int /*long*/ hDC = OS.GetDC(handle);
 
             newFont = OS.SendMessage(handle, OS.WM_GETFONT, 0, 0);
             if (newFont != 0)
@@ -473,7 +473,7 @@ public class ComboBoxEx extends Composite
                 oldFont = OS.SelectObject(hDC, newFont);
             }
 
-            int count = OS.SendMessage(handle, OS.CB_GETCOUNT, 0, 0);
+            int count = (int)/*64*/ OS.SendMessage(handle, OS.CB_GETCOUNT, 0, 0);
 
             int flags = OS.DT_CALCRECT | OS.DT_NOPREFIX;
             if ((style & SWT.READ_ONLY) == 0)
@@ -499,7 +499,7 @@ public class ComboBoxEx extends Composite
             {
                 for (int i = 0; i < count; i++)
                 {
-                    length = OS.SendMessage(handle, OS.CB_GETLBTEXTLEN, i, 0);
+                    length = (int)/*64*/ OS.SendMessage(handle, OS.CB_GETLBTEXTLEN, i, 0);
                     if (length != OS.CB_ERR)
                     {
                         if (length + 1 > buffer.length())
@@ -530,8 +530,8 @@ public class ComboBoxEx extends Composite
         {
             if ((style & SWT.SIMPLE) != 0)
             {
-                int count = OS.SendMessage(handle, OS.CB_GETCOUNT, 0, 0);
-                int itemHeight = OS.SendMessage(handle, OS.CB_GETITEMHEIGHT, 0, 0);
+                int count = (int)/*64*/ OS.SendMessage(handle, OS.CB_GETCOUNT, 0, 0);
+                int itemHeight = (int)/*64*/ OS.SendMessage(handle, OS.CB_GETITEMHEIGHT, 0, 0);
 
                 height = count * itemHeight;
             }
@@ -563,11 +563,11 @@ public class ComboBoxEx extends Composite
         }
         else
         {
-            int hwndText = getEditControl();
+            int /*long*/ hwndText = getEditControl();
 
             if (hwndText != 0)
             {
-                int margins = OS.SendMessage(hwndText, OS.EM_GETMARGINS, 0, 0);
+                int /*long*/ margins = OS.SendMessage(hwndText, OS.EM_GETMARGINS, 0, 0);
                 int marginWidth = OS.LOWORD(margins) + OS.HIWORD(margins);
 
                 width += marginWidth + 3;
@@ -585,7 +585,7 @@ public class ComboBoxEx extends Composite
         else
         {
             int border = OS.GetSystemMetrics(OS.SM_CXEDGE);
-            int textHeight = OS.SendMessage(handle, OS.CB_GETITEMHEIGHT, -1, 0);
+            int textHeight = (int)/*64*/ OS.SendMessage(handle, OS.CB_GETITEMHEIGHT, -1, 0);
 
             width += OS.GetSystemMetrics(OS.SM_CXVSCROLL) + border * 2;
 
@@ -646,7 +646,7 @@ public class ComboBoxEx extends Composite
             int threadId = OS.GetCurrentThreadId();
 
             Callback cbtCallback = new Callback(this, "CBTProc", 3);
-            int cbtProc = cbtCallback.getAddress();
+            int /*long*/ cbtProc = cbtCallback.getAddress();
             if (cbtProc == 0)
             {
                 error(SWT.ERROR_NO_MORE_CALLBACKS);
@@ -659,7 +659,7 @@ public class ComboBoxEx extends Composite
              * during widget creation.
              */
 
-            int hwndParent = widgetParent();
+            int /*long*/ hwndParent = widgetParent();
             handle = OS.CreateWindowEx(widgetExtStyle(), windowClass(), null, widgetStyle(), 0, 
                     0, 0, 500, hwndParent, 0, OS.GetModuleHandle(null), widgetCreateStruct());
 
@@ -676,7 +676,7 @@ public class ComboBoxEx extends Composite
 
             if (OS.IsDBLocale && hwndParent != 0)
             {
-                int hIMC = OS.ImmGetContext(hwndParent);
+                int /*long*/ hIMC = OS.ImmGetContext(hwndParent);
                 OS.ImmAssociateContext(handle, hIMC);
                 OS.ImmReleaseContext(hwndParent, hIMC);
             }
@@ -705,13 +705,13 @@ public class ComboBoxEx extends Composite
 
         state &= ~(CANVAS | THEME_BACKGROUND);
 
-        int hwndText = getEditControl();
+        int /*long*/ hwndText = getEditControl();
         if (hwndText != 0 && EditProc == 0)
         {
             EditProc = OS.GetWindowLongPtr(hwndText, OS.GWLP_WNDPROC);
         }
 
-        int hwndList = getComboControl();
+        int /*long*/ hwndList = getComboControl();
         if (hwndList != 0 && ListProc == 0)
         {
             ListProc = OS.GetWindowLongPtr(hwndList, OS.GWLP_WNDPROC);
@@ -764,13 +764,13 @@ public class ComboBoxEx extends Composite
     {
         super.deregister();
 
-        int hwndText = getEditControl();
+        int /*long*/ hwndText = getEditControl();
         if (hwndText != 0)
         {
             display.removeControl(hwndText);
         }
 
-        int hwndList = getComboControl();
+        int /*long*/ hwndList = getComboControl();
         if (hwndList != 0)
         {
             display.removeControl(hwndList);
@@ -788,7 +788,7 @@ public class ComboBoxEx extends Composite
     {
         checkWidget();
 
-        int selection = OS.SendMessage(handle, OS.CB_GETCURSEL, 0, 0);
+        int selection = (int)/*64*/ OS.SendMessage(handle, OS.CB_GETCURSEL, 0, 0);
         if (index != selection)
         {
             return;
